@@ -1,6 +1,8 @@
 import time
 import random
 import os
+import json
+import io
 from datetime import datetime
 from google.cloud import bigquery
 
@@ -25,25 +27,36 @@ client = bigquery.Client()
 print(f"🚀 Mac is streaming to {full_table_path}...")
 print("Press Ctrl+C to stop.")
 
+# Configure the load job (tells GCP we are appending data)
+job_config = bigquery.LoadJobConfig(
+    source_format=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
+    write_disposition="WRITE_APPEND",
+)
+
+print(f"🚀 Sandbox-friendly stream starting to {full_table_path}...")
+
 try:
     while True:
-        # Generate Data
+        # 1. Create the data
         current_time = datetime.utcnow().isoformat()
         random_value = round(random.uniform(20.0, 100.0), 2)
         
-        # Prepare the row
-        rows_to_insert = [
-            {"timestamp": current_time, "device_id": "macbook_pro", "value": random_value}
-        ]
+        row = {"timestamp": current_time, "device_id": "macbook_sandbox", "value": random_value}
         
-        # PUSH to GCP
-        errors = client.insert_rows_json(full_table_path, rows_to_insert)
+        # 2. Convert to 'Newline Delimited JSON' (BigQuery's favorite format)
+        # We use io.StringIO to pretend we have a file in memory
+        json_data = json.dumps(row) + "\n"
+        file_obj = io.StringIO(json_data)
         
-        if not errors:
-            print(f"✅ Sent: {random_value} at {current_time}")
-        else:
-            print(f"❌ GCP Error: {errors}")
-            
+        # 3. Batch Upload (This is the FREE way)
+        load_job = client.load_table_from_file(
+            file_obj, full_table_path, job_config=job_config
+        )
+        
+        # Wait for the upload to finish
+        load_job.result() 
+        
+        print(f"✅ Batch Upload Success: {random_value}")
         time.sleep(5)
 
 except KeyboardInterrupt:
