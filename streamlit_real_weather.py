@@ -12,7 +12,6 @@ def main() -> None:
     st.title("Real-time Weather Dashboard")
     st.caption("FastAPI backend + BigQuery + persisted ML model")
 
-    st.sidebar.markdown(f"**API base URL:** `{API_BASE_URL}`")
     st.subheader("Latest Weather & Prediction")
 
     if st.button("Get latest prediction"):
