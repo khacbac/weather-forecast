@@ -50,6 +50,9 @@ class Config:
             },
             "model": {
                 "model_file": "weather_model.pkl"
+            },
+            "app": {
+                "show_debug_info": False
             }
         }
         
@@ -189,6 +192,11 @@ class Config:
         if not os.path.isabs(model_file):
             model_file = str(self.config_file.parent / model_file)
         return model_file
+    
+    @property
+    def show_debug_info(self) -> bool:
+        """Get whether to show debug info in the app."""
+        return self.get("app", "show_debug_info", default=False)
 
 
 # Global config instance

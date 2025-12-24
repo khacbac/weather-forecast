@@ -16,6 +16,9 @@
   },
   "model": {
     "model_file": "weather_model.pkl"
+  },
+  "app": {
+    "show_debug_info": true
   }
 }
 

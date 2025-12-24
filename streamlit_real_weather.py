@@ -39,21 +39,8 @@ def main() -> None:
     st.title("Real-time Weather Dashboard")
     st.caption("Forecasting weather in Danang - FastAPI backend + BigQuery + persisted ML model")
 
-    # Debug info (only show locally, not on Streamlit Cloud)
-    is_local = False
-    try:
-        # Try to access secrets - if this fails, we're likely running locally
-        if hasattr(st, 'secrets'):
-            # If we can access secrets without error, check if we're on Streamlit Cloud
-            # Streamlit Cloud sets STREAMLIT_SHARING_MODE environment variable
-            is_local = os.getenv('STREAMLIT_SHARING_MODE') is None
-        else:
-            is_local = True
-    except Exception:
-        # If accessing secrets causes an error, we're definitely local
-        is_local = True
-    
-    if is_local:
+    # Debug info (controlled by config file)
+    if config.show_debug_info:
         with st.sidebar:
             with st.expander("🔧 Debug Info", expanded=False):
                 st.code(f"API URL: {API_BASE_URL}")
