@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import requests
 import streamlit as st
@@ -5,13 +6,32 @@ import streamlit as st
 from config_loader import get_config
 
 # --- CONFIGURATION ---
+# Streamlit Cloud secrets are accessible via st.secrets or os.getenv
+# Priority: Streamlit secrets > Environment variables > config.json > defaults
 config = get_config()
-API_BASE_URL = config.api_base_url
+
+# Check for Streamlit secrets first (Streamlit Cloud)
+if hasattr(st, 'secrets') and 'PREDICT_API_URL' in st.secrets:
+    API_BASE_URL = st.secrets['PREDICT_API_URL']
+elif os.getenv('PREDICT_API_URL'):
+    API_BASE_URL = os.getenv('PREDICT_API_URL')
+else:
+    API_BASE_URL = config.api_base_url
+
 API_TIMEOUT = config.api_timeout
 
 def main() -> None:
     st.title("Real-time Weather Dashboard")
     st.caption("Forecasting weather in Danang - FastAPI backend + BigQuery + persisted ML model")
+
+    # Debug info (only show in sidebar for troubleshooting)
+    with st.sidebar:
+        with st.expander("🔧 Debug Info", expanded=False):
+            st.code(f"API URL: {API_BASE_URL}")
+            st.code(f"Timeout: {API_TIMEOUT}s")
+            config_source = "Streamlit Secrets" if (hasattr(st, 'secrets') and 'PREDICT_API_URL' in st.secrets) else \
+                           ("Environment Variable" if os.getenv('PREDICT_API_URL') else "config.json/default")
+            st.caption(f"Config source: {config_source}")
 
     st.subheader("Latest Weather & Prediction")
 

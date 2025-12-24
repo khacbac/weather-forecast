@@ -100,7 +100,10 @@ The project uses a centralized configuration system for secure data management.
    - `PREDICT_API_URL` - Overrides `api.predict_api_url`
    - `WEATHER_LAT`, `WEATHER_LON`, `WEATHER_CITY` - Override weather location
 
-📖 **For detailed GitHub setup instructions**, see [docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md)
+📖 **For detailed setup instructions**:
+
+- [GitHub Secrets & Actions Setup](docs/GITHUB_SETUP.md)
+- [Streamlit Cloud Deployment](docs/STREAMLIT_CLOUD_SETUP.md)
 
 ```mermaid
 graph LR
