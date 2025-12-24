@@ -10,7 +10,7 @@ API_BASE_URL = os.getenv("PREDICT_API_URL", "http://35.225.228.65:8000")
 
 def main() -> None:
     st.title("Real-time Weather Dashboard")
-    st.caption("FastAPI backend + BigQuery + persisted ML model")
+    st.caption("Forecasting weather in Danang - FastAPI backend + BigQuery + persisted ML model")
 
     st.subheader("Latest Weather & Prediction")
 
