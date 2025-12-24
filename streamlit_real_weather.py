@@ -9,14 +9,29 @@ from config_loader import get_config
 # Streamlit Cloud secrets are accessible via st.secrets or os.getenv
 # Priority: Streamlit secrets > Environment variables > config.json > defaults
 config = get_config()
+config_source = None
 
 # Check for Streamlit secrets first (Streamlit Cloud)
-if hasattr(st, 'secrets') and 'PREDICT_API_URL' in st.secrets:
-    API_BASE_URL = st.secrets['PREDICT_API_URL']
-elif os.getenv('PREDICT_API_URL'):
+# Use try-except to handle cases where secrets file doesn't exist locally
+try:
+    if hasattr(st, 'secrets') and hasattr(st.secrets, 'get'):
+        API_BASE_URL = st.secrets.get('PREDICT_API_URL', None)
+        if API_BASE_URL:
+            config_source = "Streamlit Secrets"
+except Exception:
+    # Secrets file doesn't exist or can't be parsed (local development)
+    API_BASE_URL = None
+
+# Fall back to environment variable
+if not API_BASE_URL:
     API_BASE_URL = os.getenv('PREDICT_API_URL')
-else:
+    if API_BASE_URL:
+        config_source = "Environment Variable"
+
+# Fall back to config.json or defaults
+if not API_BASE_URL:
     API_BASE_URL = config.api_base_url
+    config_source = "config.json/default"
 
 API_TIMEOUT = config.api_timeout
 
@@ -29,8 +44,6 @@ def main() -> None:
         with st.expander("🔧 Debug Info", expanded=False):
             st.code(f"API URL: {API_BASE_URL}")
             st.code(f"Timeout: {API_TIMEOUT}s")
-            config_source = "Streamlit Secrets" if (hasattr(st, 'secrets') and 'PREDICT_API_URL' in st.secrets) else \
-                           ("Environment Variable" if os.getenv('PREDICT_API_URL') else "config.json/default")
             st.caption(f"Config source: {config_source}")
 
     st.subheader("Latest Weather & Prediction")
