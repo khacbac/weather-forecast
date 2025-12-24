@@ -5,31 +5,59 @@ import pandas as pd
 from google.cloud import bigquery
 
 import train_model as tm
-
+from config_loader import get_config
 
 # --- CONFIGURATION (shared with training/Streamlit) ---
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-KEY_FILE = os.path.join(CURRENT_DIR, "ai-realtime-project-4de709b969f4.json")
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = KEY_FILE
+config = get_config()
 
-PROJECT_ID = "ai-realtime-project"
-DATASET_ID = "sensor_data_stream"
-TABLE_ID = "real-weather"
-FULL_TABLE_PATH = f"{PROJECT_ID}.{DATASET_ID}.{TABLE_ID}"
+# Set up GCP credentials
+KEY_FILE = config.gcp_credentials_file
+if os.path.exists(KEY_FILE):
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = KEY_FILE
+else:
+    # Try environment variable or default GCP auth
+    key_file_env = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    if key_file_env and os.path.exists(key_file_env):
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = key_file_env
+
+FULL_TABLE_PATH = config.gcp_full_table_path
 
 
 def load_latest_data(limit: int = 500) -> pd.DataFrame:
-    """Load recent weather data from BigQuery."""
-    client = bigquery.Client()
-
-    query = f"""
-        SELECT timestamp, temperature, humidity, wind_speed 
-        FROM `{FULL_TABLE_PATH}`
-        ORDER BY timestamp ASC
-        LIMIT {limit}
     """
-    df = client.query(query).to_arrow().to_pandas()
-    return df
+    Load recent weather data from BigQuery.
+    
+    Args:
+        limit: Maximum number of rows to retrieve (default: 500)
+        
+    Returns:
+        DataFrame with columns: timestamp, temperature, humidity, wind_speed
+        Returns empty DataFrame if query fails or no data found.
+    """
+    try:
+        client = bigquery.Client()
+
+        query = f"""
+            SELECT timestamp, temperature, humidity, wind_speed 
+            FROM `{FULL_TABLE_PATH}`
+            ORDER BY timestamp DESC
+            LIMIT {limit}
+        """
+        
+        # Execute query and convert to pandas
+        query_job = client.query(query)
+        df = query_job.to_dataframe()
+        
+        # Reverse to get chronological order (oldest to newest)
+        if not df.empty:
+            df = df.sort_values('timestamp').reset_index(drop=True)
+        
+        return df
+        
+    except Exception as e:
+        print(f"❌ Error loading data from BigQuery: {e}")
+        print(f"   Table path: {FULL_TABLE_PATH}")
+        return pd.DataFrame()  # Return empty DataFrame on error
 
 
 def engineer_features(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
