@@ -1,0 +1,33 @@
+# Google Cloud credentials
+*.json
+!package.json
+!tsconfig.json
+!*.config.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Model files (if large)
+*.pkl
+*.h5
+*.model
+
