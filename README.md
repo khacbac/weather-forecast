@@ -1,34 +1,45 @@
-# 🌦️ Real-Time Weather AI Pipeline
+# 🌦️ Full-Stack Real-Time Weather AI Pipeline
 
-An automated, end-to-end Machine Learning pipeline hosted on Google Cloud Platform. This system ingests real-time weather data, maintains a live data warehouse, daily retrains a predictive model, and serves inferences via a high-performance API.
+An automated, end-to-end Machine Learning ecosystem hosted on Google Cloud Platform. This system integrates a live data ingestion pipeline, a self-updating AI model, and a web-based dashboard for real-time visualization and forecasting.
 
-## 🏗️ Project Architecture
+## 🏗️ Project Architecture & Data Flow
 
-- **Data Source:** External Weather API / Sensor Stream.
-- **Data Warehouse:** **Google BigQuery** for historical storage.
-- **Inference Engine:** **FastAPI** serving a Scikit-Learn regression model.
-- **Automation:** Linux `crontab` managing a "Closed Loop" ML lifecycle.
+### 1. Frontend (Visualization)
 
-## 🚀 Key Features
+- **App:** `streamlit_real_weather.py`
+- **Tech:** **Streamlit**, Plotly, Pandas
+- **Function:** A real-time dashboard that fetches data and predictions from the FastAPI backend. It provides interactive charts for temperature trends and compares current metrics against AI-generated forecasts.
 
-- **Smart Hot-Reloading:** The API monitors the model's file timestamp (`mtime`). When the daily retraining completes, the API swaps the model in memory with zero downtime.
-- **Autonomous Data Pipeline:** A background "pusher" ensures BigQuery is updated every 5 minutes.
-- **Self-Healing:** Scheduled restarts and background processes (`nohup`) ensure the service remains live 24/7.
+### 2. Backend API (Inference)
+
+- **Engine:** **FastAPI** (`main.py`)
+- **Smart Logic:** Implements a **Hot-Swap** model loader. The API monitors the model's file timestamp (`mtime`). When the daily retraining completes, the API automatically reloads the new weights into memory without needing a server restart.
+- **Endpoints:** - `GET /predict`: Returns the next-hour temperature forecast.
+  - `GET /data`: Fetches the most recent logs from BigQuery for UI display.
+
+### 3. Data Pipeline & ETL
+
+- **Ingestion (The "Pusher"):** `pusher.py` fetches live weather metrics every 5 minutes from external APIs and streams them into **Google BigQuery**.
+- **Continuous Training:** `train_model.py` pulls historical data from BigQuery every night to retrain the Scikit-Learn regressor, ensuring the model adapts to recent data patterns.
+
+---
 
 ## ⚙️ GCP Infrastructure Details
 
-This project is deployed on **Google Cloud Compute Engine**.
+The system is deployed on **Google Cloud Compute Engine**.
 
-| Component       | Specification                                       |
-| :-------------- | :-------------------------------------------------- |
-| **VM Instance** | `e2-micro` (Debian GNU/Linux 12)                    |
-| **Networking**  | TCP Port `8000` (GCP Firewall Ingress Allowed)      |
-| **IAM Roles**   | BigQuery Data Editor, BigQuery Job User             |
-| **Python Env**  | Version 3.11+ within a Virtual Environment (`venv`) |
+| Component        | Specification                                                       |
+| :--------------- | :------------------------------------------------------------------ |
+| **VM Instance**  | `e2-micro` (Debian GNU/Linux 12)                                    |
+| **Database**     | **Google BigQuery** (Time-series data warehouse)                    |
+| **Networking**   | Port `8000` (API) and Port `8501` (Streamlit) open via GCP Firewall |
+| **IAM Security** | Authenticated via Service Account JSON (BigQuery Data Editor role)  |
 
-## 🛠️ Installation & Deployment
+---
 
-### 1. Clone & Environment
+## 🛠️ Setup & Deployment
+
+### 1. Installation
 
 ```bash
 git clone [https://github.com/your-username/weather-station.git](https://github.com/your-username/weather-station.git)
