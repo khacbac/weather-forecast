@@ -1,13 +1,13 @@
-import os
-
 import pandas as pd
 import requests
 import streamlit as st
 
+from config_loader import get_config
 
 # --- CONFIGURATION ---
-API_BASE_URL = os.getenv("PREDICT_API_URL", "http://35.225.228.65:8000")
-
+config = get_config()
+API_BASE_URL = config.api_base_url
+API_TIMEOUT = config.api_timeout
 
 def main() -> None:
     st.title("Real-time Weather Dashboard")
@@ -18,7 +18,7 @@ def main() -> None:
     if st.button("Get latest prediction"):
         # --- Call prediction API ---
         try:
-            resp = requests.get(f"{API_BASE_URL}/predict", timeout=5)
+            resp = requests.get(f"{API_BASE_URL}/predict", timeout=API_TIMEOUT)
         except Exception as e:
             st.error(f"Failed to call prediction API: {e}")
             return
@@ -43,7 +43,7 @@ def main() -> None:
         # --- After prediction, refresh latest raw data from BigQuery via /data ---
         st.markdown("#### Latest Weather Readings (refreshed)")
         try:
-            data_resp = requests.get(f"{API_BASE_URL}/data?limit=100", timeout=5)
+            data_resp = requests.get(f"{API_BASE_URL}/data?limit=100", timeout=API_TIMEOUT)
             if not data_resp.ok:
                 st.error(f"Data API error (HTTP {data_resp.status_code}): {data_resp.text}")
             else:

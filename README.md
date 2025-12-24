@@ -49,6 +49,59 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+### 2. Configuration
+
+The project uses a centralized configuration system for secure data management.
+
+1. **Create your config file:**
+
+   ```bash
+   cp config.json.example config.json
+   ```
+
+2. **Edit `config.json`** with your settings:
+
+   ```json
+   {
+     "gcp": {
+       "project_id": "your-gcp-project-id",
+       "dataset_id": "sensor_data_stream",
+       "table_id": "real-weather",
+       "credentials_file": "path/to/your-credentials.json"
+     },
+     "api": {
+       "predict_api_url": "http://your-api-url:8000",
+       "timeout": 5
+     },
+     "weather": {
+       "latitude": 16.047079,
+       "longitude": 108.20623,
+       "city": "Danang"
+     },
+     "model": {
+       "model_file": "weather_model.pkl"
+     }
+   }
+   ```
+
+3. **Security Notes:**
+
+   - `config.json` is excluded from git (already in `.gitignore`)
+   - `config.json.example` is a template that can be safely committed
+   - Environment variables can override config values (useful for deployment)
+   - Never commit your actual `config.json` file with sensitive data
+
+4. **Environment Variable Overrides:**
+   The config system supports environment variable overrides:
+   - `GCP_PROJECT_ID` - Overrides `gcp.project_id`
+   - `BIGQUERY_DATASET` - Overrides `gcp.dataset_id`
+   - `BIGQUERY_TABLE` - Overrides `gcp.table_id`
+   - `GOOGLE_APPLICATION_CREDENTIALS` - Overrides `gcp.credentials_file`
+   - `PREDICT_API_URL` - Overrides `api.predict_api_url`
+   - `WEATHER_LAT`, `WEATHER_LON`, `WEATHER_CITY` - Override weather location
+
+📖 **For detailed GitHub setup instructions**, see [docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md)
+
 ```mermaid
 graph LR
     %% Data Ingestion Section

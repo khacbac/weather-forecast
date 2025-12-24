@@ -1,0 +1,77 @@
+name: Setup Configuration from Secrets
+
+on:
+  workflow_dispatch: # Manual trigger
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  setup-config:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Create config.json from secrets
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          BIGQUERY_DATASET: ${{ secrets.BIGQUERY_DATASET }}
+          BIGQUERY_TABLE: ${{ secrets.BIGQUERY_TABLE }}
+          PREDICT_API_URL: ${{ secrets.PREDICT_API_URL }}
+          WEATHER_LAT: ${{ secrets.WEATHER_LAT }}
+          WEATHER_LON: ${{ secrets.WEATHER_LON }}
+          WEATHER_CITY: ${{ secrets.WEATHER_CITY }}
+          GCP_CREDENTIALS_JSON: ${{ secrets.GCP_CREDENTIALS_JSON }}
+        run: |
+          # Create config.json from template and secrets
+          cp config.json.example config.json
+
+          # Update config.json with secrets (using jq if available, or Python)
+          python3 << 'EOF'
+          import json
+          import os
+
+          with open('config.json', 'r') as f:
+              config = json.load(f)
+
+          # Update from environment variables (secrets)
+          if os.getenv('GCP_PROJECT_ID'):
+              config['gcp']['project_id'] = os.getenv('GCP_PROJECT_ID')
+          if os.getenv('BIGQUERY_DATASET'):
+              config['gcp']['dataset_id'] = os.getenv('BIGQUERY_DATASET')
+          if os.getenv('BIGQUERY_TABLE'):
+              config['gcp']['table_id'] = os.getenv('BIGQUERY_TABLE')
+          if os.getenv('PREDICT_API_URL'):
+              config['api']['predict_api_url'] = os.getenv('PREDICT_API_URL')
+          if os.getenv('WEATHER_LAT'):
+              config['weather']['latitude'] = float(os.getenv('WEATHER_LAT'))
+          if os.getenv('WEATHER_LON'):
+              config['weather']['longitude'] = float(os.getenv('WEATHER_LON'))
+          if os.getenv('WEATHER_CITY'):
+              config['weather']['city'] = os.getenv('WEATHER_CITY')
+
+          # Write GCP credentials if provided
+          if os.getenv('GCP_CREDENTIALS_JSON'):
+              creds_file = config['gcp']['credentials_file']
+              with open(creds_file, 'w') as f:
+                  f.write(os.getenv('GCP_CREDENTIALS_JSON'))
+
+          with open('config.json', 'w') as f:
+              json.dump(config, f, indent=2)
+          EOF
+
+          echo "✅ config.json created from secrets"
+
+      - name: Show config structure (without sensitive data)
+        run: |
+          python3 << 'EOF'
+          import json
+          with open('config.json', 'r') as f:
+              config = json.load(f)
+          # Mask sensitive values
+          if 'credentials_file' in config.get('gcp', {}):
+              config['gcp']['credentials_file'] = '***masked***'
+          print(json.dumps(config, indent=2))
+          EOF

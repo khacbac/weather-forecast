@@ -5,20 +5,21 @@ Fetches weather data from Open-Meteo API and pushes to BigQuery.
 Designed to run once per execution (suitable for cron).
 """
 
-import requests
 import os
 import json
 import io
 import sys
 from datetime import datetime
 from google.cloud import bigquery
+import requests
+
+from config_loader import get_config
 
 # --- CONFIGURATION ---
-# Try to find the key file in the same directory as the script
-current_dir = os.path.dirname(os.path.abspath(__file__))
-KEY_FILE = os.path.join(current_dir, "ai-realtime-project-4de709b969f4.json")
+config = get_config()
 
-# If key file doesn't exist in script dir, try environment variable or default GCP auth
+# Set up GCP credentials
+KEY_FILE = config.gcp_credentials_file
 if os.path.exists(KEY_FILE):
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = KEY_FILE
 else:
@@ -29,16 +30,16 @@ else:
     else:
         print("Warning: No credentials file found. Using default GCP authentication.")
 
-# Update these to match your GCP project
-PROJECT_ID = os.getenv("GCP_PROJECT_ID", "ai-realtime-project")
-DATASET_ID = os.getenv("BIGQUERY_DATASET", "sensor_data_stream")
-TABLE_ID = os.getenv("BIGQUERY_TABLE", "real-weather")
-full_table_path = f"{PROJECT_ID}.{DATASET_ID}.{TABLE_ID}"
+# GCP and BigQuery settings
+PROJECT_ID = config.gcp_project_id
+DATASET_ID = config.gcp_dataset_id
+TABLE_ID = config.gcp_table_id
+full_table_path = config.gcp_full_table_path
 
-# Set the Da Nang coordinates (or update to your current location)
-LAT = float(os.getenv("WEATHER_LAT", "16.047079"))
-LON = float(os.getenv("WEATHER_LON", "108.206230"))
-CITY = os.getenv("WEATHER_CITY", "Danang")
+# Weather location settings
+LAT = config.weather_latitude
+LON = config.weather_longitude
+CITY = config.weather_city
 
 
 def fetch_weather():

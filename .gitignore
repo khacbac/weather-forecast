@@ -3,6 +3,9 @@
 !package.json
 !tsconfig.json
 !*.config.json
+!config.json.example
+# Actual config file (contains sensitive data)
+config.json
 
 # Python
 __pycache__/
