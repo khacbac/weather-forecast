@@ -20,12 +20,16 @@ echo "📝 Creating config.json from template and environment variables..."
 cp "$CONFIG_EXAMPLE" "$CONFIG_FILE"
 
 # Use Python to update config with environment variables
+export CONFIG_FILE_PATH="$CONFIG_FILE"
 python3 << 'PYTHON_SCRIPT'
 import json
 import os
 from pathlib import Path
 
-config_file = Path("${CONFIG_FILE}")
+config_file = Path(os.getenv('CONFIG_FILE_PATH'))
+if not config_file.exists():
+    raise FileNotFoundError(f"Config file not found: {config_file}")
+
 with open(config_file, 'r') as f:
     config = json.load(f)
 
@@ -66,6 +70,9 @@ with open(config_file, 'w') as f:
 
 print(f"✅ Config file created: {config_file}")
 PYTHON_SCRIPT
+
+# Clean up exported variable
+unset CONFIG_FILE_PATH
 
 echo "✅ Done! Config file ready at $CONFIG_FILE"
 
