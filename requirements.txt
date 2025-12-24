@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pandas
+google-cloud-bigquery
+pyarrow
+scikit-learn
+joblib
+requests
