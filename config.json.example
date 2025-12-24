@@ -6,7 +6,7 @@
     "credentials_file": "ai-realtime-project-4de709b969f4.json"
   },
   "api": {
-    "predict_api_url": "http://35.225.228.65:8000",
+    "predict_api_url": "http://your-api-ip-or-domain:8000",
     "timeout": 5
   },
   "weather": {

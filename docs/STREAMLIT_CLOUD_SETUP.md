@@ -6,7 +6,7 @@ This guide explains how to deploy your Streamlit app to Streamlit Cloud and conf
 
 1. A GitHub repository with your code
 2. A Streamlit Cloud account (free tier available)
-3. Your API running and accessible (e.g., `http://35.225.228.65:8000`)
+3. Your API running and accessible (e.g., `http://your-api-ip:8000` or `https://your-domain.com`)
 
 ---
 
@@ -31,7 +31,7 @@ Since `config.json` is excluded from git, you need to set up secrets in Streamli
 2. Add the following secrets in TOML format:
 
 ```toml
-PREDICT_API_URL = "http://35.225.228.65:8000"
+PREDICT_API_URL = "http://your-api-ip:8000"
 GCP_PROJECT_ID = "ai-realtime-project"
 BIGQUERY_DATASET = "sensor_data_stream"
 BIGQUERY_TABLE = "real-weather"
@@ -84,7 +84,7 @@ After deploying, check the app:
 
 **Solutions**:
 
-- Verify your API is accessible: `curl http://35.225.228.65:8000/predict`
+- Verify your API is accessible: `curl http://your-api-ip:8000/predict`
 - Check that your GCP VM firewall allows connections from Streamlit Cloud
 - Ensure your FastAPI app has CORS enabled if needed
 
@@ -115,7 +115,7 @@ Here's a complete example of what your Streamlit Cloud secrets should look like:
 
 ```toml
 # API Configuration
-PREDICT_API_URL = "http://35.225.228.65:8000"
+PREDICT_API_URL = "http://your-api-ip:8000"
 
 # GCP Configuration (if needed by your app)
 GCP_PROJECT_ID = "ai-realtime-project"

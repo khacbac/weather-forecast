@@ -26,7 +26,7 @@ This guide explains how to securely manage configuration on GitHub using GitHub 
 | `GCP_PROJECT_ID` | Your GCP project ID | `ai-realtime-project` |
 | `BIGQUERY_DATASET` | BigQuery dataset name | `sensor_data_stream` |
 | `BIGQUERY_TABLE` | BigQuery table name | `real-weather` |
-| `PREDICT_API_URL` | Your API base URL | `http://35.225.228.65:8000` |
+| `PREDICT_API_URL` | Your API base URL | `http://your-api-ip:8000` |
 | `WEATHER_LAT` | Weather location latitude | `16.047079` |
 | `WEATHER_LON` | Weather location longitude | `108.206230` |
 | `WEATHER_CITY` | City name | `Danang` |
@@ -86,7 +86,7 @@ If you're deploying to a GCP VM or other server, you can set up the config manua
    export GCP_PROJECT_ID="ai-realtime-project"
    export BIGQUERY_DATASET="sensor_data_stream"
    export BIGQUERY_TABLE="real-weather"
-   export PREDICT_API_URL="http://35.225.228.65:8000"
+   export PREDICT_API_URL="http://your-api-ip:8000"
    export WEATHER_LAT="16.047079"
    export WEATHER_LON="108.206230"
    export WEATHER_CITY="Danang"
