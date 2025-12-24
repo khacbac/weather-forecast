@@ -37,7 +37,7 @@ API_TIMEOUT = config.api_timeout
 
 def main() -> None:
     st.title("Real-time Weather Dashboard")
-    st.caption("Forecasting weather in Danang - FastAPI backend + BigQuery + persisted ML model")
+    st.caption("Forecasting weather in FPT Plaza 2, Danang")
 
     # Debug info (controlled by config file)
     if config.show_debug_info:
