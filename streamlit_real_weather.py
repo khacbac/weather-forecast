@@ -77,7 +77,7 @@ def main() -> None:
         # --- After prediction, refresh latest raw data from BigQuery via /data ---
         st.markdown("#### Latest Weather Readings (refreshed)")
         try:
-            data_resp = requests.get(f"{API_BASE_URL}/data?limit=100", timeout=API_TIMEOUT)
+            data_resp = requests.get(f"{API_BASE_URL}/data?limit=500", timeout=API_TIMEOUT)
             if not data_resp.ok:
                 st.error(f"Data API error (HTTP {data_resp.status_code}): {data_resp.text}")
             else:

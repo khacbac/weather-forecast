@@ -7,7 +7,7 @@ app = FastAPI()
 
 
 @app.get("/data")
-def get_latest_data(limit: int = 100):
+def get_latest_data(limit: int = 500):
     """
     Return recent rows from BigQuery for display clients (e.g. Streamlit).
     """
