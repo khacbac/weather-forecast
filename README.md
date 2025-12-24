@@ -48,3 +48,44 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
+
+```mermaid
+graph LR
+    %% Data Ingestion Section
+    subgraph GCP_Compute_Engine [GCP VM Instance]
+        direction TB
+        CRON[Crontab Scheduler]
+        PUSHER[pusher.py]
+        TRAINER[train_model.py]
+        API[FastAPI main.py]
+        MODEL[(weather_model.pkl)]
+    end
+
+    %% External Data Source
+    EXT_API((External Weather API)) --> PUSHER
+
+    %% Database
+    subgraph GCP_BigQuery [Google BigQuery]
+        BQ[(Historical Weather Table)]
+    end
+
+    %% Flow Connections
+    CRON -- "Every 5 Mins" --> PUSHER
+    PUSHER -- "Insert Rows" --> BQ
+
+    CRON -- "Daily 2:00 AM" --> TRAINER
+    BQ -- "Fetch History" --> TRAINER
+    TRAINER -- "Saves New Version" --> MODEL
+
+    %% Inference Flow
+    API -- "Checks Timestamp" --> MODEL
+    BQ -- "Fetch Recent Data" --> API
+
+    %% Frontend
+    subgraph Local_Machine [User Device]
+        ST[Streamlit Dashboard]
+    end
+
+    ST -- "GET /predict" --> API
+    ST -- "GET /data" --> API
+```
