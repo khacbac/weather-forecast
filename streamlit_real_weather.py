@@ -5,7 +5,7 @@ import streamlit as st
 
 
 # --- CONFIGURATION ---
-API_BASE_URL = os.getenv("PREDICT_API_URL", "http://localhost:8000")
+API_BASE_URL = os.getenv("PREDICT_API_URL", "http://35.225.228.65:8000")
 
 
 def main() -> None:
